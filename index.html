@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Million Challenge 💰</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD700;
+    --gold2: #FFA500;
+    --dark: #05050f;
+    --deep: #0a0a1f;
+    --card: #0d0d28;
+    --border: #1e1e4f;
+    --correct: #00ff88;
+    --wrong: #ff3355;
+    --cyan: #00e5ff;
+    --purple: #7c3aed;
+    --blue: #3b82f6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(2px 2px at 10% 60%, rgba(255,215,0,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 50%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(2px 2px at 60% 20%, rgba(0,229,255,0.2) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+  /* ===== HEADER STATS ===== */
+  .live-stats {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px;
+    background: rgba(5,5,15,0.95);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    font-size: 12px;
+    font-family: 'Orbitron', monospace;
+    color: #aaa;
+  }
+  .live-stats span { color: var(--gold); }
+  .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--correct);
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* ===== START SCREEN ===== */
+  #start-screen {
+    justify-content: center;
+    padding: 80px 20px 40px;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 30%, rgba(124,58,237,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(255,165,0,0.08) 0%, transparent 50%);
+  }
+
+  .logo-container {
+    margin-bottom: 30px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  .logo-icon {
+    font-size: 80px;
+    display: block;
+    filter: drop-shadow(0 0 30px var(--gold));
+    animation: pulse-icon 2s ease-in-out infinite;
+  }
+  @keyframes pulse-icon { 0%,100%{filter:drop-shadow(0 0 30px var(--gold))} 50%{filter:drop-shadow(0 0 60px var(--gold2))} }
+
+  .game-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(32px, 8vw, 72px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 50%, #ff6600 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .game-subtitle {
+    font-size: 18px;
+    color: var(--cyan);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  .start-btn {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+    color: #000;
+    border: none;
+    padding: 20px 50px;
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.1s, box-shadow 0.3s;
+    box-shadow: 0 0 40px rgba(255,165,0,0.4), 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 40%; height: 200%;
+    background: rgba(255,255,255,0.3);
+    transform: skewX(-20deg);
+    animation: shine 3s infinite;
+  }
+  @keyframes shine { 0%{left:-60%} 100%{left:150%} }
+  .start-btn:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(255,165,0,0.6), 0 8px 25px rgba(0,0,0,0.4); }
+  .start-btn:active { transform: scale(0.98); }
+
+  .prize-preview {
+    display: flex;
+    gap: 10px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 500px;
+  }
+  .prize-chip {
+    background: rgba(255,215,0,0.08);
+    border: 1px solid rgba(255,215,0,0.2);
+    color: var(--gold);
+    padding: 6px 14px;
+    border-radius: 2px;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .prize-chip.top { background: rgba(255,215,0,0.2); border-color: var(--gold); font-size: 13px; }
+
+  /* ===== LEADERBOARD ===== */
+  .leaderboard {
+    background: rgba(13,13,40,0.8);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    width: 100%;
+    max-width: 360px;
+    margin: 20px 0;
+  }
+  .leaderboard h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    text-align: center;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+  }
+  .lb-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-rank { color: var(--gold); font-family: 'Orbitron', monospace; font-size: 12px; width: 25px; }
+  .lb-name { flex: 1; padding: 0 10px; color: #ddd; }
+  .lb-score { color: var(--gold); font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 700; }
+
+  /* ===== GAME SCREEN ===== */
+  #game-screen {
+    padding: 60px 20px 20px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: rgba(13,13,40,0.8);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .current-prize {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px, 4vw, 28px);
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(255,215,0,0.5);
+  }
+
+  .lifelines {
+    display: flex;
+    gap: 10px;
+  }
+  .lifeline-btn {
+    background: rgba(13,13,40,0.9);
+    border: 1px solid var(--border);
+    color: var(--cyan);
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .lifeline-btn:hover:not(:disabled) {
+    background: rgba(0,229,255,0.1);
+    border-color: var(--cyan);
+    box-shadow: 0 0 15px rgba(0,229,255,0.2);
+  }
+  .lifeline-btn:disabled { opacity: 0.3; cursor: not-allowed; color: #555; border-color: #333; }
+
+  .question-number {
+    text-align: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+  }
+
+  .question-card {
+    background: rgba(13,13,40,0.9);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    animation: scan 3s linear infinite;
+  }
+  @keyframes scan { 0%{transform:scaleX(0)} 50%{transform:scaleX(1)} 100%{transform:scaleX(0)} }
+
+  .question-text {
+    font-size: clamp(16px, 3vw, 22px);
+    font-weight: 500;
+    line-height: 1.6;
+    color: #e8e8ff;
+  }
+
+  .category-badge {
+    display: inline-block;
+    background: rgba(124,58,237,0.2);
+    border: 1px solid rgba(124,58,237,0.4);
+    color: #a78bfa;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .answer-btn {
+    background: rgba(13,13,40,0.9);
+    border: 1px solid var(--border);
+    color: #ddd;
+    padding: 16px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(13px, 2vw, 16px);
+    font-weight: 500;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .answer-btn .answer-letter {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--gold);
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.3);
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .answer-btn:hover:not(:disabled) {
+    background: rgba(255,215,0,0.05);
+    border-color: rgba(255,215,0,0.5);
+    transform: translateX(4px);
+  }
+  .answer-btn.correct {
+    background: rgba(0,255,136,0.15) !important;
+    border-color: var(--correct) !important;
+    color: var(--correct) !important;
+    animation: correct-flash 0.5s ease;
+  }
+  .answer-btn.correct .answer-letter { color: var(--correct); border-color: var(--correct); background: rgba(0,255,136,0.1); }
+  @keyframes correct-flash { 0%{transform:scale(1)} 50%{transform:scale(1.02)} 100%{transform:scale(1)} }
+  .answer-btn.wrong {
+    background: rgba(255,51,85,0.15) !important;
+    border-color: var(--wrong) !important;
+    color: var(--wrong) !important;
+  }
+  .answer-btn.wrong .answer-letter { color: var(--wrong); border-color: var(--wrong); background: rgba(255,51,85,0.1); }
+  .answer-btn.hidden { opacity: 0.15; pointer-events: none; }
+  .answer-btn:disabled { cursor: not-allowed; }
+
+  /* Prize ladder */
+  .prize-ladder {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 4px;
+    padding: 15px;
+    background: rgba(13,13,40,0.8);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    max-width: 200px;
+    width: 100%;
+  }
+
+  .ladder-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 2px;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: #555;
+    transition: all 0.3s;
+  }
+  .ladder-row.current {
+    background: rgba(255,215,0,0.15);
+    color: var(--gold);
+    border: 1px solid rgba(255,215,0,0.3);
+    font-weight: 700;
+    animation: ladder-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes ladder-pulse { 0%,100%{box-shadow:0 0 0 rgba(255,215,0,0)} 50%{box-shadow:0 0 15px rgba(255,215,0,0.3)} }
+  .ladder-row.completed { color: var(--correct); }
+  .ladder-row.safe { color: #888; }
+
+  .game-layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    align-items: flex-start;
+  }
+  .game-main { flex: 1; }
+  .game-side { display: none; }
+  @media (min-width: 700px) { .game-side { display: flex; flex-direction: column; } }
+
+  /* Internet poll */
+  .poll-widget {
+    background: rgba(0,229,255,0.05);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+    display: none;
+  }
+  .poll-widget.visible { display: block; }
+  .poll-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .poll-bar-wrap { margin-bottom: 8px; }
+  .poll-label { font-size: 12px; color: #aaa; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .poll-bar { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+  .poll-fill { height: 100%; background: var(--cyan); border-radius: 3px; transition: width 0.8s ease; }
+
+  /* Overlay / modal */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.active { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    max-width: 460px;
+    width: 90%;
+    animation: modal-in 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes modal-in { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+  .modal-icon { font-size: 64px; margin-bottom: 15px; }
+  .modal-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .modal-subtitle { font-size: 16px; color: #aaa; margin-bottom: 25px; line-height: 1.5; }
+  .modal-prize {
+    font-family: 'Orbitron', monospace;
+    font-size: 40px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 15px 0;
+  }
+
+  .modal-btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: #000;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 4px;
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 2px;
+    margin: 5px;
+    transition: all 0.2s;
+  }
+  .modal-btn:hover { transform: scale(1.05); }
+  .modal-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: #aaa;
+  }
+
+  .share-text {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 13px;
+    color: #ccc;
+    margin: 15px 0;
+    line-height: 1.6;
+    text-align: left;
+    font-family: monospace;
+  }
+
+  /* Bonus round overlay */
+  .bonus-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+  }
+  .bonus-overlay.active { display: flex; }
+  .bonus-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 8vw, 64px);
+    font-weight: 900;
+    color: var(--gold);
+    animation: bonus-flash 0.3s ease infinite alternate;
+    margin-bottom: 10px;
+  }
+  @keyframes bonus-flash { from{text-shadow:0 0 20px var(--gold)} to{text-shadow:0 0 60px var(--gold2),0 0 100px #ff6600} }
+  .bonus-sub {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    color: var(--cyan);
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+  }
+
+  /* Confetti particles */
+  .particle {
+    position: fixed;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 999;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Timer bar */
+  .timer-bar-wrap {
+    height: 3px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    display: none;
+  }
+  .timer-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--correct), var(--gold), var(--wrong));
+    border-radius: 2px;
+    transition: width 1s linear;
+  }
+
+  /* walk away btn */
+  .walk-away-btn {
+    background: transparent;
+    border: 1px solid rgba(255,51,85,0.3);
+    color: rgba(255,51,85,0.7);
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+    margin-top: 15px;
+    text-align: center;
+    display: block;
+    width: 100%;
+  }
+  .walk-away-btn:hover { background: rgba(255,51,85,0.1); border-color: var(--wrong); color: var(--wrong); }
+
+  @media (max-width: 480px) {
+    .answers-grid { grid-template-columns: 1fr; }
+    .lifelines { flex-wrap: wrap; justify-content: center; }
+    .lifeline-btn { font-size: 8px; padding: 6px 8px; }
+  }
+
+  .copied-msg {
+    color: var(--correct);
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+  }
+
+  /* glow ring animation for correct answer */
+  @keyframes ring-out {
+    0% { box-shadow: 0 0 0 0 rgba(0,255,136,0.5); }
+    100% { box-shadow: 0 0 0 30px rgba(0,255,136,0); }
+  }
+  .answer-btn.correct { animation: correct-flash 0.4s ease, ring-out 0.6s ease 0.2s; }
+</style>
+</head>
+<body>
+
+<!-- Live Stats Bar -->
+<div class="live-stats">
+  <div><span class="live-dot"></span> <span id="online-count">2,413</span> players online</div>
+  <div>🎮 Games today: <span id="games-count">18,204</span></div>
+  <div>🏆 Top: <span>$1,000,000</span></div>
+</div>
+
+<!-- ===== START SCREEN ===== -->
+<div id="start-screen" class="screen active">
+  <div class="logo-container">
+    <span class="logo-icon">💰</span>
+  </div>
+  <h1 class="game-title">MILLION<br>CHALLENGE</h1>
+  <p class="game-subtitle">Are You Worth A Million?</p>
+
+  <div class="prize-preview">
+    <span class="prize-chip">$100</span>
+    <span class="prize-chip">$500</span>
+    <span class="prize-chip">$1,000</span>
+    <span class="prize-chip">$5,000</span>
+    <span class="prize-chip">$10,000</span>
+    <span class="prize-chip">$50,000</span>
+    <span class="prize-chip">$100,000</span>
+    <span class="prize-chip">$250,000</span>
+    <span class="prize-chip">$500,000</span>
+    <span class="prize-chip top">💎 $1,000,000</span>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">🚀 START THE MILLION CHALLENGE</button>
+
+  <div class="leaderboard" id="leaderboard">
+    <h3>🏆 Top Players Today</h3>
+    <div id="lb-rows"></div>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="game-screen" class="screen">
+  <div style="width:100%;max-width:800px;margin:0 auto;padding:0 10px;">
+    <div class="game-header">
+      <div>
+        <div style="font-size:10px;color:#666;font-family:'Orbitron',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Current Prize</div>
+        <div class="current-prize" id="current-prize-display">$0</div>
+      </div>
+      <div class="lifelines">
+        <button class="lifeline-btn" id="ll-5050" onclick="use5050()">50:50</button>
+        <button class="lifeline-btn" id="ll-internet" onclick="useInternet()" style="color:#00ff88">🌐 ASK</button>
+        <button class="lifeline-btn" id="ll-skip" onclick="useSkip()" style="color:#ffa500">⏭ SKIP</button>
+      </div>
+    </div>
+
+    <div class="game-layout">
+      <div class="game-main">
+        <div class="question-number" id="q-number">QUESTION 1 OF 10</div>
+        <div class="timer-bar-wrap" id="timer-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+        <div class="question-card">
+          <div class="category-badge" id="q-category">General</div>
+          <p class="question-text" id="question-text">Loading...</p>
+        </div>
+        <div class="answers-grid" id="answers-grid"></div>
+        <div class="poll-widget" id="poll-widget">
+          <div class="poll-title">📊 What The Internet Says...</div>
+          <div id="poll-bars"></div>
+        </div>
+        <button class="walk-away-btn" onclick="walkAway()">🚶 Walk Away With Current Prize</button>
+      </div>
+      <div class="game-side">
+        <div class="prize-ladder" id="prize-ladder"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OVERLAYS ===== -->
+<!-- Game Over -->
+<div class="overlay" id="gameover-overlay">
+  <div class="modal">
+    <div class="modal-icon">💔</div>
+    <div class="modal-title">GAME OVER</div>
+    <div class="modal-subtitle">The correct answer was:<br><strong id="correct-answer-reveal" style="color:#fff;font-size:18px"></strong></div>
+    <div style="font-size:13px;color:#666;margin-bottom:5px;font-family:'Orbitron',monospace;">YOU WALKED AWAY WITH</div>
+    <div class="modal-prize" id="final-prize">$0</div>
+    <div class="modal-subtitle" id="safe-prize-msg"></div>
+    <div class="share-text" id="share-text-go"></div>
+    <button class="modal-btn" onclick="copyShare('share-text-go')">📋 Copy & Share</button>
+    <div class="copied-msg" id="copied-go">✅ Copied!</div>
+    <br>
+    <button class="modal-btn secondary" onclick="restartGame()">🔄 Play Again</button>
+  </div>
+</div>
+
+<!-- Win -->
+<div class="overlay" id="win-overlay">
+  <div class="modal">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title">YOU DID IT!</div>
+    <div class="modal-subtitle">You've conquered the Million Challenge!</div>
+    <div class="modal-prize">$1,000,000</div>
+    <div class="modal-subtitle">You are a LEGEND 🌟</div>
+    <div class="share-text" id="share-text-win"></div>
+    <button class="modal-btn" onclick="copyShare('share-text-win')">📋 Copy & Share</button>
+    <div class="copied-msg" id="copied-win">✅ Copied!</div>
+    <br>
+    <button class="modal-btn secondary" onclick="restartGame()">🔄 Play Again</button>
+  </div>
+</div>
+
+<!-- Walk Away -->
+<div class="overlay" id="walkaway-overlay">
+  <div class="modal">
+    <div class="modal-icon">🚶</div>
+    <div class="modal-title">WALKING AWAY</div>
+    <div class="modal-subtitle">Smart move! You've secured:</div>
+    <div class="modal-prize" id="walkaway-prize">$0</div>
+    <div class="share-text" id="share-text-wa"></div>
+    <button class="modal-btn" onclick="copyShare('share-text-wa')">📋 Copy & Share</button>
+    <div class="copied-msg" id="copied-wa">✅ Copied!</div>
+    <br>
+    <button class="modal-btn secondary" onclick="restartGame()">🔄 Play Again</button>
+  </div>
+</div>
+
+<!-- Level Up -->
+<div class="overlay" id="levelup-overlay">
+  <div class="modal">
+    <div class="modal-icon" id="levelup-icon">✨</div>
+    <div class="modal-title" id="levelup-title">CORRECT!</div>
+    <div class="modal-subtitle" id="levelup-sub">You've won</div>
+    <div class="modal-prize" id="levelup-prize">$100</div>
+    <button class="modal-btn" id="levelup-continue" onclick="continuePlaying()">Continue →</button>
+  </div>
+</div>
+
+<!-- Bonus Round -->
+<div class="bonus-overlay" id="bonus-overlay">
+  <div class="bonus-title">🎰 BONUS ROUND!</div>
+  <div class="bonus-sub">DOUBLE YOUR MONEY!</div>
+  <div style="font-size:50px;margin:20px 0;animation:float 1s ease-in-out infinite">💎</div>
+  <button class="modal-btn" onclick="hideBonusRound()" style="font-size:16px;padding:16px 40px;">I'M READY!</button>
+</div>
+
+<script>
+// ===== QUESTIONS DATABASE =====
+const PRIZES = [100, 500, 1000, 5000, 10000, 50000, 100000, 250000, 500000, 1000000];
+const SAFE_LEVELS = [1, 4]; // indices of safe havens (after Q2, Q5)
+const SAFE_PRIZES = [0, 0, 500, 500, 500, 10000, 10000, 10000, 10000, 10000];
+
+const CATEGORIES = {
+  geography: '🌍 Geography',
+  morocco: '🇲🇦 Morocco',
+  science: '🔬 Science',
+  tech: '💻 Technology',
+  history: '📜 History',
+  puzzle: '🧩 Brain Teaser',
+  facts: '🦒 Weird Facts',
+  easy: '⭐ Easy',
+};
+
+const ALL_QUESTIONS = [
+  // ===== EASY =====
+  { q: "How many days are in a week?", a: ["7", "6", "8", "5"], c: 0, cat: 'easy' },
+  { q: "How many months are in a year?", a: ["12", "10", "11", "13"], c: 0, cat: 'easy' },
+  { q: "How many continents are on Earth?", a: ["7", "5", "6", "8"], c: 0, cat: 'easy' },
+  { q: "What color do you get when you mix red and white?", a: ["Pink", "Orange", "Purple", "Yellow"], c: 0, cat: 'easy' },
+  { q: "What is 2 + 2?", a: ["4", "3", "5", "22"], c: 0, cat: 'easy' },
+  { q: "How many legs does a spider have?", a: ["8", "6", "10", "4"], c: 0, cat: 'easy' },
+  { q: "What is the opposite of hot?", a: ["Cold", "Warm", "Cool", "Frozen"], c: 0, cat: 'easy' },
+  { q: "Which planet is closest to the Sun?", a: ["Mercury", "Venus", "Earth", "Mars"], c: 0, cat: 'easy' },
+  { q: "How many sides does a triangle have?", a: ["3", "4", "5", "2"], c: 0, cat: 'easy' },
+  { q: "What is the largest ocean on Earth?", a: ["Pacific", "Atlantic", "Indian", "Arctic"], c: 0, cat: 'easy' },
+
+  // ===== GEOGRAPHY =====
+  { q: "What is the capital of France?", a: ["Paris", "Lyon", "Marseille", "Nice"], c: 0, cat: 'geography' },
+  { q: "What is the capital of Japan?", a: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"], c: 0, cat: 'geography' },
+  { q: "What is the longest river in the world?", a: ["Nile", "Amazon", "Yangtze", "Mississippi"], c: 0, cat: 'geography' },
+  { q: "What is the largest desert in the world?", a: ["Sahara", "Gobi", "Arabian", "Kalahari"], c: 0, cat: 'geography' },
+  { q: "What is the highest mountain in the world?", a: ["Everest", "K2", "Kangchenjunga", "Makalu"], c: 0, cat: 'geography' },
+  { q: "What is the capital of Brazil?", a: ["Brasília", "São Paulo", "Rio de Janeiro", "Salvador"], c: 0, cat: 'geography' },
+  { q: "What is the smallest country in the world?", a: ["Vatican City", "Monaco", "San Marino", "Liechtenstein"], c: 0, cat: 'geography' },
+  { q: "Which country has the most natural lakes?", a: ["Canada", "Russia", "USA", "Finland"], c: 0, cat: 'geography' },
+  { q: "What is the capital of Australia?", a: ["Canberra", "Sydney", "Melbourne", "Brisbane"], c: 0, cat: 'geography' },
+  { q: "Which is the largest country by area?", a: ["Russia", "Canada", "China", "USA"], c: 0, cat: 'geography' },
+  { q: "What is the capital of Egypt?", a: ["Cairo", "Alexandria", "Giza", "Luxor"], c: 0, cat: 'geography' },
+  { q: "Which continent is the Sahara Desert in?", a: ["Africa", "Asia", "Australia", "South America"], c: 0, cat: 'geography' },
+  { q: "What is the capital of Germany?", a: ["Berlin", "Munich", "Frankfurt", "Hamburg"], c: 0, cat: 'geography' },
+  { q: "Which country has the longest coastline?", a: ["Canada", "Norway", "Indonesia", "Russia"], c: 0, cat: 'geography' },
+  { q: "What is the capital of Mexico?", a: ["Mexico City", "Guadalajara", "Monterrey", "Tijuana"], c: 0, cat: 'geography' },
+
+  // ===== MOROCCO =====
+  { q: "What is the capital of Morocco?", a: ["Rabat", "Casablanca", "Marrakech", "Fez"], c: 0, cat: 'morocco' },
+  { q: "What is the largest city in Morocco?", a: ["Casablanca", "Rabat", "Marrakech", "Fez"], c: 0, cat: 'morocco' },
+  { q: "What is the currency of Morocco?", a: ["Dirham", "Dinar", "Pound", "Franc"], c: 0, cat: 'morocco' },
+  { q: "In what year did Morocco gain independence?", a: ["1956", "1948", "1962", "1970"], c: 0, cat: 'morocco' },
+  { q: "Which Moroccan city is known as the 'Red City'?", a: ["Marrakech", "Fez", "Casablanca", "Rabat"], c: 0, cat: 'morocco' },
+  { q: "Which sea borders Morocco to the north?", a: ["Mediterranean Sea", "Red Sea", "Arabian Sea", "Black Sea"], c: 0, cat: 'morocco' },
+  { q: "What mountain range runs through Morocco?", a: ["Atlas Mountains", "Andes", "Alps", "Himalayas"], c: 0, cat: 'morocco' },
+  { q: "In which city is the famous Djemaa el-Fna square?", a: ["Marrakech", "Fez", "Casablanca", "Tangier"], c: 0, cat: 'morocco' },
+  { q: "What is the official language of Morocco?", a: ["Arabic", "French", "Berber", "Spanish"], c: 0, cat: 'morocco' },
+  { q: "Which Moroccan city hosted the 1994 FIFA World Cup final?", a: ["None — it was hosted in the USA", "Casablanca", "Rabat", "Marrakech"], c: 0, cat: 'morocco' },
+  { q: "What is the traditional Moroccan garment called?", a: ["Djellaba", "Thobe", "Kaftan", "Sari"], c: 0, cat: 'morocco' },
+  { q: "Which ocean borders Morocco to the west?", a: ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"], c: 0, cat: 'morocco' },
+
+  // ===== SCIENCE =====
+  { q: "What is the chemical symbol for gold?", a: ["Au", "Go", "Gd", "Ag"], c: 0, cat: 'science' },
+  { q: "How many planets are in our solar system?", a: ["8", "9", "7", "10"], c: 0, cat: 'science' },
+  { q: "What is the speed of light (approximately)?", a: ["300,000 km/s", "150,000 km/s", "500,000 km/s", "3,000 km/s"], c: 0, cat: 'science' },
+  { q: "What is the largest organ in the human body?", a: ["Skin", "Liver", "Lungs", "Heart"], c: 0, cat: 'science' },
+  { q: "What gas do plants absorb from the atmosphere?", a: ["CO₂", "O₂", "N₂", "H₂"], c: 0, cat: 'science' },
+  { q: "How many bones are in the adult human body?", a: ["206", "196", "216", "256"], c: 0, cat: 'science' },
+  { q: "What is the atomic number of carbon?", a: ["6", "8", "12", "4"], c: 0, cat: 'science' },
+  { q: "Which planet is known as the Red Planet?", a: ["Mars", "Jupiter", "Saturn", "Venus"], c: 0, cat: 'science' },
+  { q: "What is the powerhouse of the cell?", a: ["Mitochondria", "Nucleus", "Ribosome", "Chloroplast"], c: 0, cat: 'science' },
+  { q: "What is the chemical formula for water?", a: ["H₂O", "CO₂", "NaCl", "O₂"], c: 0, cat: 'science' },
+  { q: "What force keeps planets in orbit around the Sun?", a: ["Gravity", "Magnetism", "Friction", "Electromagnetism"], c: 0, cat: 'science' },
+  { q: "What is the hardest natural substance on Earth?", a: ["Diamond", "Quartz", "Steel", "Titanium"], c: 0, cat: 'science' },
+  { q: "How long does it take Earth to orbit the Sun?", a: ["365.25 days", "360 days", "300 days", "400 days"], c: 0, cat: 'science' },
+  { q: "What is the most abundant gas in Earth's atmosphere?", a: ["Nitrogen", "Oxygen", "CO₂", "Argon"], c: 0, cat: 'science' },
+  { q: "What is absolute zero in Celsius?", a: ["-273.15°C", "-100°C", "0°C", "-173°C"], c: 0, cat: 'science' },
+  { q: "What particle has a negative charge?", a: ["Electron", "Proton", "Neutron", "Photon"], c: 0, cat: 'science' },
+
+  // ===== TECHNOLOGY =====
+  { q: "In what year was YouTube founded?", a: ["2005", "2003", "2007", "2001"], c: 0, cat: 'tech' },
+  { q: "Who founded Facebook?", a: ["Mark Zuckerberg", "Bill Gates", "Steve Jobs", "Elon Musk"], c: 0, cat: 'tech' },
+  { q: "What does AI stand for?", a: ["Artificial Intelligence", "Automated Internet", "Advanced Interface", "Analog Input"], c: 0, cat: 'tech' },
+  { q: "What does HTML stand for?", a: ["HyperText Markup Language", "High Transfer Markup Logic", "HyperText Making Language", "Home Tool Markup Language"], c: 0, cat: 'tech' },
+  { q: "What does CPU stand for?", a: ["Central Processing Unit", "Computer Personal Unit", "Core Processing Utility", "Central Program Unit"], c: 0, cat: 'tech' },
+  { q: "Which company created the iPhone?", a: ["Apple", "Samsung", "Google", "Microsoft"], c: 0, cat: 'tech' },
+  { q: "What does 'WWW' stand for?", a: ["World Wide Web", "Wide World Web", "Web Wide World", "World Web Wide"], c: 0, cat: 'tech' },
+  { q: "In what year was Google founded?", a: ["1998", "1995", "2000", "2001"], c: 0, cat: 'tech' },
+  { q: "What does 'URL' stand for?", a: ["Uniform Resource Locator", "Universal Resource Link", "Unified Reference Location", "User Resource Label"], c: 0, cat: 'tech' },
+  { q: "Which programming language is known as the 'language of the web'?", a: ["JavaScript", "Python", "Java", "C++"], c: 0, cat: 'tech' },
+  { q: "What company owns Instagram?", a: ["Meta", "Google", "Twitter", "Apple"], c: 0, cat: 'tech' },
+  { q: "What does 'RAM' stand for?", a: ["Random Access Memory", "Read After Memory", "Rapid Access Module", "Random Array Memory"], c: 0, cat: 'tech' },
+  { q: "What is the name of Tesla's CEO?", a: ["Elon Musk", "Jeff Bezos", "Bill Gates", "Tim Cook"], c: 0, cat: 'tech' },
+  { q: "What does 'PDF' stand for?", a: ["Portable Document Format", "Personal Data File", "Processed Document File", "Portable Data Format"], c: 0, cat: 'tech' },
+
+  // ===== HISTORY =====
+  { q: "In which year did World War II end?", a: ["1945", "1944", "1946", "1943"], c: 0, cat: 'history' },
+  { q: "Who was the first man to walk on the Moon?", a: ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "Michael Collins"], c: 0, cat: 'history' },
+  { q: "Which ancient wonder was located in Alexandria, Egypt?", a: ["The Lighthouse", "The Colossus", "The Gardens", "The Sphinx"], c: 0, cat: 'history' },
+  { q: "In which year did the Berlin Wall fall?", a: ["1989", "1991", "1987", "1993"], c: 0, cat: 'history' },
+  { q: "Who was the first President of the United States?", a: ["George Washington", "Abraham Lincoln", "Thomas Jefferson", "John Adams"], c: 0, cat: 'history' },
+  { q: "Which empire was ruled by Julius Caesar?", a: ["Roman", "Greek", "Ottoman", "Persian"], c: 0, cat: 'history' },
+  { q: "In which year did the Titanic sink?", a: ["1912", "1910", "1905", "1915"], c: 0, cat: 'history' },
+  { q: "Who painted the Mona Lisa?", a: ["Leonardo da Vinci", "Michelangelo", "Raphael", "Picasso"], c: 0, cat: 'history' },
+  { q: "In which year did the French Revolution begin?", a: ["1789", "1776", "1800", "1812"], c: 0, cat: 'history' },
+  { q: "Which country first sent a human to space?", a: ["USSR/Russia", "USA", "China", "Germany"], c: 0, cat: 'history' },
+  { q: "Who wrote 'The Art of War'?", a: ["Sun Tzu", "Confucius", "Lao Tzu", "Marco Polo"], c: 0, cat: 'history' },
+  { q: "The Great Wall of China was primarily built during which dynasty?", a: ["Ming Dynasty", "Tang Dynasty", "Qin Dynasty", "Han Dynasty"], c: 0, cat: 'history' },
+
+  // ===== BRAIN TEASERS =====
+  { q: "A rooster lays an egg on top of a hill. Which way does it roll?", a: ["Roosters don't lay eggs", "Down the left", "Down the right", "Straight down"], c: 0, cat: 'puzzle' },
+  { q: "The more you take, the more you leave behind. What am I?", a: ["Footsteps", "Time", "Money", "Memories"], c: 0, cat: 'puzzle' },
+  { q: "I have cities but no houses. I have mountains but no trees. What am I?", a: ["A map", "A painting", "A dream", "A book"], c: 0, cat: 'puzzle' },
+  { q: "What is always in front of you but can't be seen?", a: ["The future", "The wind", "Air", "Time"], c: 0, cat: 'puzzle' },
+  { q: "What number comes next: 2, 4, 8, 16, 32, ___?", a: ["64", "48", "56", "60"], c: 0, cat: 'puzzle' },
+  { q: "What gets wetter as it dries?", a: ["A towel", "A sponge", "A cloud", "A fish"], c: 0, cat: 'puzzle' },
+  { q: "I speak without a mouth. What am I?", a: ["An echo", "A phone", "A book", "A letter"], c: 0, cat: 'puzzle' },
+  { q: "If you have me, you want to share me. If you share me, you haven't kept me. What am I?", a: ["A secret", "Love", "Money", "Food"], c: 0, cat: 'puzzle' },
+  { q: "What has keys but no locks?", a: ["A keyboard", "A piano", "A map", "Both A and B"], c: 1, cat: 'puzzle' },
+  { q: "What is 1/2 of 2/3 of 3/4 of 400?", a: ["100", "150", "200", "50"], c: 0, cat: 'puzzle' },
+
+  // ===== WEIRD FACTS =====
+  { q: "Which animal never sleeps?", a: ["Bullfrog", "Dolphin", "Shark", "Ant"], c: 0, cat: 'facts' },
+  { q: "Which animal can sleep for up to 22 hours a day?", a: ["Koala", "Sloth", "Cat", "Panda"], c: 0, cat: 'facts' },
+  { q: "How many hearts does an octopus have?", a: ["3", "2", "4", "1"], c: 0, cat: 'facts' },
+  { q: "What is the fastest land animal?", a: ["Cheetah", "Lion", "Greyhound", "Pronghorn"], c: 0, cat: 'facts' },
+  { q: "How long is a day on Venus compared to a year on Venus?", a: ["A day is longer than a year", "Same length", "A day is shorter", "Venus has no day/night"], c: 0, cat: 'facts' },
+  { q: "Which fruit is technically a berry botanically?", a: ["Banana", "Strawberry", "Raspberry", "Blueberry"], c: 0, cat: 'facts' },
+  { q: "How many arms does a starfish typically have?", a: ["5", "4", "6", "8"], c: 0, cat: 'facts' },
+  { q: "Which country eats the most chocolate per capita?", a: ["Switzerland", "Belgium", "USA", "Germany"], c: 0, cat: 'facts' },
+  { q: "A group of flamingos is called a...?", a: ["Flamboyance", "Flock", "Gaggle", "Colony"], c: 0, cat: 'facts' },
+  { q: "What color is a polar bear's skin (under the white fur)?", a: ["Black", "Pink", "White", "Grey"], c: 0, cat: 'facts' },
+  { q: "Honey never expires. How old is the oldest edible honey found?", a: ["3,000 years", "100 years", "500 years", "1,000 years"], c: 0, cat: 'facts' },
+  { q: "Which country invented pizza?", a: ["Italy", "Greece", "Turkey", "Spain"], c: 0, cat: 'facts' },
+  { q: "How many eyes does a bee have?", a: ["5", "2", "4", "6"], c: 0, cat: 'facts' },
+
+  // ===== HARD QUESTIONS =====
+  { q: "What is the Higgs boson sometimes called?", a: ["God Particle", "Dark Matter", "Quark", "Neutrino"], c: 0, cat: 'science' },
+  { q: "In what year was the World Wide Web invented?", a: ["1989", "1995", "1983", "2000"], c: 0, cat: 'tech' },
+  { q: "What is the Fibonacci sequence's 10th number?", a: ["55", "45", "65", "89"], c: 0, cat: 'puzzle' },
+  { q: "What is the half-life of Carbon-14?", a: ["5,730 years", "1,000 years", "10,000 years", "500 years"], c: 0, cat: 'science' },
+  { q: "Which element has the highest melting point?", a: ["Tungsten", "Carbon", "Osmium", "Rhenium"], c: 0, cat: 'science' },
+  { q: "In which year was the Eiffel Tower built?", a: ["1889", "1900", "1876", "1912"], c: 0, cat: 'history' },
+  { q: "Who proposed the theory of general relativity?", a: ["Albert Einstein", "Isaac Newton", "Stephen Hawking", "Niels Bohr"], c: 0, cat: 'science' },
+  { q: "What is the only country that lies in all four hemispheres?", a: ["Kiribati", "Indonesia", "Brazil", "Kenya"], c: 0, cat: 'geography' },
+  { q: "What percentage of the ocean has been explored by humans?", a: ["~20%", "~80%", "~50%", "~5%"], c: 0, cat: 'facts' },
+  { q: "What is the rarest blood type?", a: ["AB-negative", "O-negative", "B-negative", "A-negative"], c: 0, cat: 'science' },
+  { q: "Which programming language was created by Guido van Rossum?", a: ["Python", "Java", "Ruby", "Perl"], c: 0, cat: 'tech' },
+  { q: "What is the name of the longest bone in the human body?", a: ["Femur", "Tibia", "Fibula", "Humerus"], c: 0, cat: 'science' },
+  { q: "What does 'quantum' mean in Latin?", a: ["How much", "Very small", "Energy", "Wave"], c: 0, cat: 'science' },
+  { q: "Which mathematician first introduced the concept of zero to the world?", a: ["Brahmagupta", "Euclid", "Pythagoras", "Archimedes"], c: 0, cat: 'history' },
+];
+
+// ===== FAKE LEADERBOARD =====
+const FAKE_NAMES = ["Alex", "Sara", "Karim", "Lina", "Omar", "Sofia", "Ahmed", "Emma", "Youssef", "Mia", "Hamza", "Leila", "Ryan", "Nora", "Tarik", "Maya", "Bilal", "Zara", "Amir", "Elena"];
+const FAKE_SCORES_POOL = [1000000, 500000, 250000, 100000, 50000, 10000, 5000, 1000];
+
+function buildLeaderboard() {
+  const used = new Set();
+  const rows = [];
+  for (let i = 0; i < 5; i++) {
+    let name;
+    do { name = FAKE_NAMES[Math.floor(Math.random() * FAKE_NAMES.length)]; } while (used.has(name));
+    used.add(name);
+    const score = FAKE_SCORES_POOL[i] || FAKE_SCORES_POOL[Math.floor(Math.random() * FAKE_SCORES_POOL.length)];
+    rows.push({ name, score });
+  }
+  rows.sort((a,b) => b.score - a.score);
+  document.getElementById('lb-rows').innerHTML = rows.map((r,i) =>
+    `<div class="lb-row">
+      <div class="lb-rank">#${i+1}</div>
+      <div class="lb-name">${r.name}</div>
+      <div class="lb-score">$${r.score.toLocaleString()}</div>
+    </div>`
+  ).join('');
+}
+
+// ===== LIVE STATS ANIMATION =====
+function animateLiveStats() {
+  const baseOnline = 2413, baseGames = 18204;
+  setInterval(() => {
+    const online = baseOnline + Math.floor(Math.random() * 200) - 100;
+    const games = parseInt(document.getElementById('games-count').textContent.replace(',','')) + Math.floor(Math.random() * 5);
+    document.getElementById('online-count').textContent = online.toLocaleString();
+    document.getElementById('games-count').textContent = games.toLocaleString();
+  }, 3000);
+}
+
+// ===== GAME STATE =====
+let gameState = {
+  currentLevel: 0,
+  questions: [],
+  lifelines: { '5050': true, internet: true, skip: true },
+  answered: false,
+  bonusActive: false,
+};
+
+function formatMoney(n) { return '$' + n.toLocaleString(); }
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickQuestions() {
+  const shuffled = shuffleArray(ALL_QUESTIONS);
+  // Pick 10: mix of easy at start, hard at end
+  const easy = shuffled.filter(q => q.cat === 'easy').slice(0, 3);
+  const medium = shuffled.filter(q => !['easy','puzzle'].includes(q.cat)).slice(0, 5);
+  const hard = shuffled.filter(q => q.cat === 'puzzle' || shuffled.indexOf(q) > 100).slice(0, 4);
+  const pool = shuffleArray([...easy, ...medium, ...hard]).slice(0, 10);
+  // Ensure we have 10
+  while (pool.length < 10) pool.push(shuffled[pool.length]);
+  return pool.slice(0, 10);
+}
+
+function buildPrizeLadder() {
+  const ladder = document.getElementById('prize-ladder');
+  ladder.innerHTML = PRIZES.map((p, i) => {
+    const cls = i === gameState.currentLevel ? 'current' : '';
+    return `<div class="ladder-row ${cls}" id="ladder-${i}">
+      <span>${i + 1}</span>
+      <span>${formatMoney(p)}</span>
+    </div>`;
+  }).join('');
+}
+
+function updatePrizeLadder() {
+  PRIZES.forEach((_, i) => {
+    const el = document.getElementById('ladder-' + i);
+    if (!el) return;
+    el.className = 'ladder-row';
+    if (i < gameState.currentLevel) el.classList.add('completed');
+    else if (i === gameState.currentLevel) el.classList.add('current');
+    if (SAFE_LEVELS.includes(i) && i <= gameState.currentLevel) el.classList.add('safe');
+  });
+}
+
+function startGame() {
+  playSound('start');
+  gameState.currentLevel = 0;
+  gameState.questions = pickQuestions();
+  gameState.lifelines = { '5050': true, internet: true, skip: true };
+  gameState.answered = false;
+
+  document.getElementById('ll-5050').disabled = false;
+  document.getElementById('ll-internet').disabled = false;
+  document.getElementById('ll-skip').disabled = false;
+
+  showScreen('game-screen');
+  buildPrizeLadder();
+  loadQuestion();
+
+  // Random bonus round chance
+  if (Math.random() < 0.15) {
+    setTimeout(() => showBonusRound(), 500);
+  }
+}
+
+function loadQuestion() {
+  gameState.answered = false;
+  hidePollWidget();
+  document.getElementById('poll-widget').classList.remove('visible');
+
+  const q = gameState.questions[gameState.currentLevel];
+  if (!q) { endGame('win'); return; }
+
+  document.getElementById('q-number').textContent = `QUESTION ${gameState.currentLevel + 1} OF 10`;
+  document.getElementById('q-category').textContent = CATEGORIES[q.cat] || q.cat;
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('current-prize-display').textContent = gameState.currentLevel === 0 ? '$0' : formatMoney(PRIZES[gameState.currentLevel - 1]);
+
+  updatePrizeLadder();
+  renderAnswers(q);
+  playSound('question');
+}
+
+function renderAnswers(q, hiddenIndices = []) {
+  const grid = document.getElementById('answers-grid');
+  const letters = ['A', 'B', 'C', 'D'];
+  grid.innerHTML = q.a.map((ans, i) => {
+    const hidden = hiddenIndices.includes(i) ? 'hidden' : '';
+    return `<button class="answer-btn ${hidden}" onclick="selectAnswer(${i})" id="ans-${i}">
+      <span class="answer-letter">${letters[i]}</span>
+      <span>${ans}</span>
+    </button>`;
+  }).join('');
+}
+
+function selectAnswer(idx) {
+  if (gameState.answered) return;
+  gameState.answered = true;
+
+  const q = gameState.questions[gameState.currentLevel];
+  const correct = q.c;
+
+  // Disable all buttons
+  document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
+
+  if (idx === correct) {
+    document.getElementById('ans-' + idx).classList.add('correct');
+    playSound('correct');
+    setTimeout(() => {
+      spawnConfetti();
+      showLevelUp();
+    }, 700);
+  } else {
+    document.getElementById('ans-' + idx).classList.add('wrong');
+    document.getElementById('ans-' + correct).classList.add('correct');
+    playSound('wrong');
+    setTimeout(() => {
+      endGame('lose', q.a[correct]);
+    }, 1500);
+  }
+}
+
+function showLevelUp() {
+  const justWon = PRIZES[gameState.currentLevel];
+  gameState.currentLevel++;
+
+  if (gameState.currentLevel >= PRIZES.length) {
+    endGame('win');
+    return;
+  }
+
+  const icons = ['✨','🔥','⚡','💫','🌟','🎯','💎','🏆','👑','💰'];
+  document.getElementById('levelup-icon').textContent = icons[Math.min(gameState.currentLevel - 1, icons.length - 1)];
+  document.getElementById('levelup-prize').textContent = formatMoney(justWon);
+  document.getElementById('levelup-sub').textContent = `You've won`;
+
+  if (gameState.currentLevel >= PRIZES.length) {
+    document.getElementById('levelup-title').textContent = 'YOU WIN!';
+    document.getElementById('levelup-continue').style.display = 'none';
+  } else {
+    document.getElementById('levelup-title').textContent = 'CORRECT!';
+    document.getElementById('levelup-continue').style.display = '';
+  }
+
+  openOverlay('levelup-overlay');
+}
+
+function continuePlaying() {
+  closeOverlay('levelup-overlay');
+  loadQuestion();
+}
+
+function endGame(type, correctAnswer = '') {
+  const safePrize = SAFE_PRIZES[Math.min(gameState.currentLevel, SAFE_PRIZES.length - 1)];
+  const finalPrize = gameState.currentLevel > 0 ? PRIZES[gameState.currentLevel - 1] : 0;
+
+  if (type === 'win') {
+    spawnConfetti(60);
+    playSound('win');
+    document.getElementById('share-text-win').textContent = buildShareText(1000000);
+    openOverlay('win-overlay');
+  } else if (type === 'lose') {
+    const displayPrize = safePrize;
+    document.getElementById('correct-answer-reveal').textContent = correctAnswer;
+    document.getElementById('final-prize').textContent = formatMoney(displayPrize);
+    document.getElementById('safe-prize-msg').textContent = displayPrize > 0 ? `Safe haven guaranteed you $${displayPrize.toLocaleString()}` : `You leave with nothing. Try again!`;
+    document.getElementById('share-text-go').textContent = buildShareText(displayPrize);
+    openOverlay('gameover-overlay');
+  } else if (type === 'walkaway') {
+    const prize = gameState.currentLevel > 0 ? PRIZES[gameState.currentLevel - 1] : 0;
+    document.getElementById('walkaway-prize').textContent = formatMoney(prize);
+    document.getElementById('share-text-wa').textContent = buildShareText(prize);
+    openOverlay('walkaway-overlay');
+  }
+}
+
+function walkAway() {
+  endGame('walkaway');
+}
+
+function buildShareText(prize) {
+  return `💰 I reached ${formatMoney(prize)} in the Million Challenge!\n\nCan YOU reach $1,000,000? 🎯\n\nPlay now: million-challenge.github.io`;
+}
+
+// ===== LIFELINES =====
+function use5050() {
+  if (!gameState.lifelines['5050'] || gameState.answered) return;
+  gameState.lifelines['5050'] = false;
+  document.getElementById('ll-5050').disabled = true;
+  playSound('lifeline');
+
+  const q = gameState.questions[gameState.currentLevel];
+  const correct = q.c;
+  const wrong = [0,1,2,3].filter(i => i !== correct);
+  const toHide = shuffleArray(wrong).slice(0, 2);
+
+  toHide.forEach(i => {
+    const btn = document.getElementById('ans-' + i);
+    if (btn) btn.classList.add('hidden');
+  });
+}
+
+function useInternet() {
+  if (!gameState.lifelines.internet || gameState.answered) return;
+  gameState.lifelines.internet = false;
+  document.getElementById('ll-internet').disabled = true;
+  playSound('lifeline');
+
+  const q = gameState.questions[gameState.currentLevel];
+  const correct = q.c;
+
+  // Generate skewed random poll
+  const vals = [0,1,2,3].map(i => {
+    if (i === correct) return 40 + Math.floor(Math.random() * 35);
+    return 5 + Math.floor(Math.random() * 20);
+  });
+  const total = vals.reduce((a,b) => a+b, 0);
+  const pcts = vals.map(v => Math.round(v / total * 100));
+
+  const letters = ['A','B','C','D'];
+  const pollBars = document.getElementById('poll-bars');
+  pollBars.innerHTML = pcts.map((pct, i) => {
+    const btn = document.getElementById('ans-' + i);
+    if (btn && btn.classList.contains('hidden')) return '';
+    return `<div class="poll-bar-wrap">
+      <div class="poll-label"><span>${letters[i]}: ${q.a[i].substring(0,20)}${q.a[i].length>20?'...':''}</span><span>${pct}%</span></div>
+      <div class="poll-bar"><div class="poll-fill" style="width:0%" data-pct="${pct}"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('poll-widget').classList.add('visible');
+  setTimeout(() => {
+    document.querySelectorAll('.poll-fill').forEach(el => {
+      el.style.width = el.dataset.pct + '%';
+    });
+  }, 100);
+}
+
+function useSkip() {
+  if (!gameState.lifelines.skip || gameState.answered) return;
+  gameState.lifelines.skip = false;
+  document.getElementById('ll-skip').disabled = true;
+  playSound('lifeline');
+
+  // Replace current question
+  const pool = ALL_QUESTIONS.filter(q => !gameState.questions.includes(q));
+  if (pool.length > 0) {
+    gameState.questions[gameState.currentLevel] = shuffleArray(pool)[0];
+  }
+  document.getElementById('poll-widget').classList.remove('visible');
+  loadQuestion();
+}
+
+function hidePollWidget() {
+  document.getElementById('poll-widget').classList.remove('visible');
+}
+
+// ===== BONUS ROUND =====
+function showBonusRound() {
+  document.getElementById('bonus-overlay').classList.add('active');
+  playSound('bonus');
+}
+function hideBonusRound() {
+  document.getElementById('bonus-overlay').classList.remove('active');
+  // Double the current prize value for next win (flag only, handled in logic)
+  gameState.bonusActive = true;
+}
+
+// ===== SCREEN MANAGEMENT =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function openOverlay(id) {
+  document.getElementById(id).classList.add('active');
+}
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function restartGame() {
+  closeOverlay('gameover-overlay');
+  closeOverlay('win-overlay');
+  closeOverlay('walkaway-overlay');
+  closeOverlay('levelup-overlay');
+  showScreen('start-screen');
+  buildLeaderboard();
+}
+
+// ===== SHARE =====
+function copyShare(elId) {
+  const text = document.getElementById(elId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const msgId = elId.replace('share-text-', 'copied-');
+    const el = document.getElementById(msgId);
+    if (el) { el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 2000); }
+  });
+}
+
+// ===== CONFETTI =====
+function spawnConfetti(count = 30) {
+  const colors = ['#FFD700', '#FFA500', '#00ff88', '#00e5ff', '#7c3aed', '#ff3355', '#fff'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.top = '-20px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.width = (4 + Math.random() * 10) + 'px';
+      p.style.height = (4 + Math.random() * 10) + 'px';
+      p.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
+      p.style.animationDelay = '0s';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 4000);
+    }, i * 50);
+  }
+}
+
+// ===== SOUND (Web Audio API) =====
+let audioCtx;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, type, duration, vol = 0.3) {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playSound(type) {
+  try {
+    const ctx = getAudioCtx();
+    switch(type) {
+      case 'start':
+        playTone(440, 'sine', 0.2, 0.4);
+        setTimeout(() => playTone(550, 'sine', 0.2, 0.4), 150);
+        setTimeout(() => playTone(660, 'sine', 0.3, 0.4), 300);
+        break;
+      case 'question':
+        playTone(300, 'sine', 0.15, 0.15);
+        break;
+      case 'correct':
+        playTone(523, 'sine', 0.15, 0.3);
+        setTimeout(() => playTone(659, 'sine', 0.15, 0.3), 150);
+        setTimeout(() => playTone(784, 'sine', 0.3, 0.3), 300);
+        break;
+      case 'wrong':
+        playTone(200, 'sawtooth', 0.3, 0.4);
+        setTimeout(() => playTone(150, 'sawtooth', 0.5, 0.4), 200);
+        break;
+      case 'lifeline':
+        playTone(880, 'sine', 0.1, 0.2);
+        setTimeout(() => playTone(660, 'sine', 0.2, 0.2), 100);
+        break;
+      case 'win':
+        [523,659,784,1046,784,1046,1318].forEach((f,i) => {
+          setTimeout(() => playTone(f, 'sine', 0.2, 0.4), i * 120);
+        });
+        break;
+      case 'bonus':
+        playTone(800, 'sine', 0.1, 0.5);
+        setTimeout(() => playTone(900, 'sine', 0.1, 0.5), 100);
+        setTimeout(() => playTone(1000, 'sine', 0.2, 0.5), 200);
+        break;
+    }
+  } catch(e) {}
+}
+
+// ===== INIT =====
+buildLeaderboard();
+animateLiveStats();
+</script>
+</body>
+</html>
